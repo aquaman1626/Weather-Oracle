@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Weather Oracle - Accurate Weather Forecasts Anywhere</title>
+  <meta name="description" content="Weather Oracle provides accurate and friendly weather forecasts for any location worldwide. Search your city and get real-time weather updates and 3-day forecasts." />
+  <meta name="author" content="Charles Chibuzo" />
+  <style>
+    /* Reset and base */
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: #e0e0e0;
+      min-height: 100vh;
+    }
+
+    /* Navigation */
+    .main-nav {
+      background: rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      padding: 15px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+    }
+
+    .nav-title {
+      font-weight: 600;
+      font-size: 1.8rem;
+      color: #a0e9fd;
+      text-shadow: 0 0 10px #00c6ff;
+      margin: 0;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .nav-link {
+      color: #e0e0e0;
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .nav-link:hover, .nav-link.active {
+      background: rgba(0, 198, 255, 0.2);
+      color: #a0e9fd;
+    }
+
+    /* Page Container */
+    .page-container {
+      padding: 40px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: calc(100vh - 70px);
+    }
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .app-container {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 20px;
+      padding: 30px 40px;
+      width: 400px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(10px);
+      text-align: center;
+    }
+
+    .page-title {
+      font-weight: 600;
+      font-size: 2.2rem;
+      margin-bottom: 25px;
+      letter-spacing: 1px;
+      color: #a0e9fd;
+      text-shadow: 0 0 10px #00c6ff;
+    }
+
+    /* Search Form */
+    .search-form {
+      display: flex;
+      margin-bottom: 30px;
+      border-radius: 50px;
+      overflow: hidden;
+      box-shadow: 0 0 15px #00c6ff88;
+    }
+
+    .search-form input {
+      flex: 1;
+      padding: 15px 20px;
+      font-size: 1.1rem;
+      border: none;
+      outline: none;
+      background: rgba(255, 255, 255, 0.15);
+      color: #e0e0e0;
+      transition: background 0.3s ease;
+    }
+
+    .search-form input::placeholder {
+      color: #b0cfdc;
+      font-style: italic;
+    }
+
+    .search-form input:focus {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .search-form button {
+      background: #00c6ff;
+      border: none;
+      padding: 0 25px;
+      cursor: pointer;
+      font-size: 1.4rem;
+      color: #003f5c;
+      transition: background 0.3s ease;
+    }
+
+    .search-form button:hover {
+      background: #0086b3;
+    }
+
+    /* Weather Result */
+    .weather-result {
+      text-align: left;
+      font-size: 1.1rem;
+      line-height: 1.5;
+      color: #d0e8ff;
+      min-height: 250px;
+      position: relative;
+    }
+
+    .info-text {
+      font-style: italic;
+      color: #7aa7c7;
+    }
+
+    .weather-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    .weather-header img {
+      width: 80px;
+      height: 80px;
+      filter: drop-shadow(0 0 5px #00c6ff);
+    }
+
+    .weather-header h2 {
+      font-size: 2rem;
+      font-weight: 600;
+      color: #a0e9fd;
+      text-shadow: 0 0 8px #00c6ff;
+      margin: 0;
+    }
+
+    .weather-details p {
+      margin: 6px 0;
+    }
+
+    /* About Page */
+    .about-content {
+      text-align: left;
+    }
+
+    .about-content h3 {
+      color: #a0e9fd;
+      margin-top: 20px;
+      margin-bottom: 10px;
+    }
+
+    .about-content ul {
+      padding-left: 20px;
+    }
+
+    .about-content li {
+      margin-bottom: 8px;
+    }
+
+    /* Auth Page */
+    .auth-container {
+      width: 100%;
+    }
+
+    .auth-tabs {
+      display: flex;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .auth-tab {
+      flex: 1;
+      padding: 10px;
+      background: none;
+      border: none;
+      color: #e0e0e0;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+    }
+
+    .auth-tab.active {
+      background: rgba(0, 198, 255, 0.3);
+      color: #a0e9fd;
+    }
+
+    .auth-form {
+      display: none;
+      text-align: left;
+    }
+
+    .auth-form.active {
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      color: #a0e9fd;
+      font-weight: 600;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.1);
+      color: #e0e0e0;
+      font-size: 1rem;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #00c6ff;
+    }
+
+    .auth-submit {
+      width: 100%;
+      padding: 12px;
+      background: #00c6ff;
+      color: #003f5c;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .auth-submit:hover {
+      background: #0086b3;
+    }
+
+    @media (max-width: 450px) {
+      .app-container {
+        width: 90vw;
+        padding: 20px;
+      }
+
+      .nav-container {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .nav-title {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <nav class="main-nav">
+    <div class="nav-container">
+      <h1 class="nav-title">Weather Oracle</h1>
+      <div class="nav-links">
+        <a href="#home" class="nav-link active" data-page="home">Home</a>
+        <a href="#about" class="nav-link" data-page="about">About</a>
+        <a href="#auth" class="nav-link" data-page="auth" id="auth-nav-link">Sign In</a>
+        <a href="#" class="nav-link" id="signout-link" style="display:none;">Sign Out</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page-container">
+    <!-- Home Page -->
+    <div id="home-page" class="page active">
+      <div class="app-container">
+        <h2 class="page-title">Discover Weather Anywhere</h2>
+        <form id="search-form" class="search-form" autocomplete="off">
+          <input
+            type="text"
+            id="location-input"
+            placeholder="Search for any place..."
+            required
+            aria-label="Location"
+          />
+          <button type="submit" aria-label="Search weather">🔍</button>
+        </form>
+        <div id="weather-result" class="weather-result">
+          <p class="info-text">Enter a location to reveal the weather secrets.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- About Page -->
+    <div id="about-page" class="page">
+      <div class="app-container">
+        <h2 class="page-title">About Weather Oracle</h2>
+        <div class="about-content">
+          <p>Weather Oracle is your trusted companion for accurate weather forecasting. Our mission is to provide reliable weather information with an intuitive, beautiful interface.</p>
+          
+          <h3>How It Works</h3>
+          <p>Using advanced weather data from trusted sources, Weather Oracle delivers precise forecasts for any location worldwide. Our algorithms ensure accuracy rates above 75% for all predictions.</p>
+          
+          <h3>Our Features</h3>
+          <ul>
+            <li>Real-time weather data</li>
+            <li>3-day detailed forecasts</li>
+            <li>Global location search</li>
+            <li>Beautiful, intuitive interface</li>
+            <li>Responsive design for all devices</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Auth Page -->
+    <div id="auth-page" class="page">
+      <div class="app-container">
+        <h2 class="page-title">Welcome Back</h2>
+        <div class="auth-container">
+          <div class="auth-tabs">
+            <button class="auth-tab active" data-tab="signin">Sign In</button>
+            <button class="auth-tab" data-tab="signup">Sign Up</button>
+          </div>
+          
+          <form id="signin-form" class="auth-form active">
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" id="email" required placeholder="Enter your email" />
+            </div>
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input type="password" id="password" required placeholder="Enter your password" />
+            </div>
+            <button type="submit" class="auth-submit">Sign In</button>
+          </form>
+          
+          <form id="signup-form" class="auth-form">
+            <div class="form-group">
+              <label for="signup-name">Full Name</label>
+              <input type="text" id="signup-name" required placeholder="Enter your full name" />
+            </div>
+            <div class="form-group">
+              <label for="signup-email">Email</label>
+              <input type="email" id="signup-email" required placeholder="Enter your email" />
+            </div>
+            <div class="form-group">
+              <label for="signup-password">Password</label>
+              <input type="password" id="signup-password" required placeholder="Create a password" />
+            </div>
+            <div class="form-group">
+              <label for="confirm-password">Confirm Password</label>
+              <input type="password" id="confirm-password" required placeholder="Confirm your password" />
+            </div>
+            <button type="submit" class="auth-submit">Create Account</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const backendUrl = 'http://localhost:5500';
+
+    // Navigation elements
+    const navLinks = document.querySelectorAll('.nav-link[data-page]');
+    const pages = document.querySelectorAll('.page');
+    const authNavLink = document.getElementById('auth-nav-link');
+    const signoutLink = document.getElementById('signout-link');
+
+    // Auth forms and tabs
+    const authTabs = document.querySelectorAll('.auth-tab');
+    const authForms = document.querySelectorAll('.auth-form');
+    const signinForm = document.getElementById('signin-form');
+    const signupForm = document.getElementById('signup-form');
+
+    // Weather elements
+    const searchForm = document.getElementById('search-form');
+    const input = document.getElementById('location-input');
+    const weatherResult = document.getElementById('weather-result');
+
+    // Helper: Show page by id
+    function showPage(pageId) {
+      pages.forEach(page => {
+        page.classList.toggle('active', page.id === `${pageId}-page`);
+      });
+      navLinks.forEach(link => {
+        link.classList.toggle('active', link.getAttribute('data-page') === pageId);
+      });
+      window.location.hash = pageId;
+    }
+
+    // Helper: Update nav for auth state
+    function updateNavForAuth(isLoggedIn) {
+      if (isLoggedIn) {
+        authNavLink.style.display = 'none';
+        signoutLink.style.display = 'inline-block';
+      } else {
+        authNavLink.style.display = 'inline-block';
+        signoutLink.style.display = 'none';
+      }
+    }
+
+    // Helper: Sign out user
+    function signOut() {
+      localStorage.removeItem('authToken');
+      authToken = null;
+      updateNavForAuth(false);
+      alert('You have signed out.');
+      showPage('home');
+    }
+
+    // Check auth token on load
+    let authToken = localStorage.getItem('authToken');
+    updateNavForAuth(!!authToken);
+
+    // Navigation click handlers
+    navLinks.forEach(link => {
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        const pageId = link.getAttribute('data-page');
+        showPage(pageId);
+      });
+    });
+
+    // Sign out handler
+    signoutLink.addEventListener('click', e => {
+      e.preventDefault();
+      signOut();
+    });
+
+    // Load page from hash on load
+    if (window.location.hash) {
+      const pageId = window.location.hash.substring(1);
+      if ([...navLinks].some(link => link.getAttribute('data-page') === pageId)) {
+        showPage(pageId);
+      }
+    }
+
+    // Auth tab switching
+    authTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const tabId = tab.getAttribute('data-tab');
+        authTabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        authForms.forEach(form => {
+          form.classList.toggle('active', form.id === `${tabId}-form`);
+        });
+      });
+    });
+
+    // Sign In form submit
+    signinForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      if (!email || !password) {
+        alert('Please fill in all fields');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${backendUrl}/api/signin`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+
+        if (res.ok && data.token) {
+          authToken = data.token;
+          localStorage.setItem('authToken', authToken);
+          updateNavForAuth(true);
+          alert('Sign in successful!');
+          showPage('home');
+          signinForm.reset();
+        } else {
+          alert(data.message || 'Sign in failed');
+        }
+      } catch (err) {
+        alert('Error connecting to server.');
+        console.error(err);
+      }
+    });
+
+    // Sign Up form submit
+    signupForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      const name = document.getElementById('signup-name').value.trim();
+      const email = document.getElementById('signup-email').value.trim();
+      const password = document.getElementById('signup-password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+
+      if (!name || !email || !password || !confirmPassword) {
+        alert('Please fill in all fields');
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        alert('Passwords do not match');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${backendUrl}/api/signup`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password })
+        });
+        const data = await res.json();
+
+        if (res.ok && data.token) {
+          authToken = data.token;
+          localStorage.setItem('authToken', authToken);
+          updateNavForAuth(true);
+          alert('Account created successfully!');
+          showPage('home');
+          signupForm.reset();
+        } else {
+          alert(data.message || 'Account creation failed');
+        }
+      } catch (err) {
+        alert('Error connecting to server.');
+        console.error(err);
+      }
+    });
+
+    // Weather search form submit
+    searchForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      const location = input.value.trim();
+      if (!location) return;
+
+      if (!authToken) {
+        alert('Please sign in to search weather.');
+        showPage('auth');
+        return;
+      }
+
+      weatherResult.innerHTML = '<p class="info-text">Fetching weather data...</p>';
+
+      try {
+        const res = await fetch(`${backendUrl}/api/weather?location=${encodeURIComponent(location)}`, {
+          headers: {
+            'Authorization': `Bearer ${authToken}`
+          }
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          renderWeather(data);
+        } else {
+          // Handle invalid token or auth errors by signing out user
+          if (res.status === 401 || res.status === 403) {
+            alert('Session expired or invalid token. Please sign in again.');
+            signOut();
+            return;
+          }
+          weatherResult.innerHTML = `<p class="info-text" style="color:#ff6b6b;">${data.message || 'Failed to fetch weather data.'}</p>`;
+        }
+      } catch (err) {
+        weatherResult.innerHTML = `<p class="info-text" style="color:#ff6b6b;">Error connecting to server.</p>`;
+        console.error(err);
+      }
+    });
+
+    // Render weather data function
+    function renderWeather(data) {
+      weatherResult.innerHTML = `
+        <div class="weather-header">
+          <img src="https://openweathermap.org/img/wn/${data.icon}@2x.png" alt="${data.description}" />
+          <h2>${data.location}</h2>
+        </div>
+        <div class="weather-details">
+          <p><strong>Temperature:</strong> ${data.temperature} °C</p>
+          <p><strong>Condition:</strong> ${data.description}</p>
+          <p><strong>Humidity:</strong> ${data.humidity}%</p>
+          <p><strong>Wind Speed:</strong> ${data.windSpeed} m/s</p>
+        </div>
+      `;
+    }
+  });
+</script>
+</body>
+</html>
