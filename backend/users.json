@@ -1,0 +1,32 @@
+[
+  {
+    "name": "ggggg",
+    "email": "ggggg@g.com",
+    "password": "$2b$10$upOckjSAovk/9pJwGuuyku1fFBkRe7DD4kW9Z3BwMAlS2t.rE5nKe",
+    "imageUrl": null,
+    "searchHistory": [],
+    "resetToken": null,
+    "resetTokenExpiry": null,
+    "isPremium": false
+  },
+  {
+    "name": "ajhdj",
+    "email": "ddddd@d.com",
+    "password": "$2b$10$1bKyXtDVG3X0bFc26uicTeGrB6K/xIQmIx1NTlDu.czt4rZ3zpO8C",
+    "imageUrl": null,
+    "searchHistory": [
+      {
+        "location": "Delta, NG",
+        "date": "2025-09-24T11:25:58.765Z",
+        "temperature": 21.94,
+        "description": "overcast clouds",
+        "icon": "04d",
+        "humidity": 98,
+        "windSpeed": 2.4
+      }
+    ],
+    "resetToken": null,
+    "resetTokenExpiry": null,
+    "isPremium": false
+  }
+]

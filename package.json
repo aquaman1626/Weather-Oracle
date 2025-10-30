@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json.schemastore.org/package.json",
+  "name": "weather-oracle",
+  "version": "1.0.0",
+  "description": "Full-stack Weather Oracle app",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "npm start --prefix backend",
+    "build": "npm run build --prefix frontend",
+    "dev": "concurrently \"npm run dev --prefix backend\" \"npm start --prefix frontend\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aquaman1626/Weather-Oracle.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "homepage": "https://github.com/aquaman1626/Weather-Oracle#readme"
+}

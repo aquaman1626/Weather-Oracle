@@ -1,0 +1,1577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Weather Oracle - Accurate Weather Forecasts Anywhere</title>
+  <meta name="description" content="Weather Oracle provides accurate and friendly weather forecasts for any location worldwide. Search your city and get real-time weather updates and 3-day forecasts." />
+  <meta name="author" content="Charles Chibuzo" />
+  <style>
+    /* Reset and base */
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: #e0e0e0;
+      min-height: 100vh;
+    }
+
+    /* Navigation */
+    .main-nav {
+      background: rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      padding: 15px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+    }
+
+    .nav-title {
+      font-weight: 600;
+      font-size: 1.8rem;
+      color: #a0e9fd;
+      text-shadow: 0 0 10px #00c6ff;
+      margin: 0;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .nav-link {
+      color: #e0e0e0;
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .nav-link:hover, .nav-link.active {
+      background: rgba(0, 198, 255, 0.2);
+      color: #a0e9fd;
+    }
+
+    /* Page Container */
+    .page-container {
+      padding: 40px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: calc(100vh - 70px);
+    }
+
+    .page {
+      display: none;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .page.active {
+      display: flex;
+    }
+
+    .app-container {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 20px;
+      padding: 30px 40px;
+      width: 400px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(10px);
+      text-align: center;
+    }
+
+    .page-title {
+      font-weight: 600;
+      font-size: 2.2rem;
+      margin-bottom: 25px;
+      letter-spacing: 1px;
+      color: #a0e9fd;
+      text-shadow: 0 0 10px #00c6ff;
+    }
+
+    /* Search Form */
+    .search-form {
+      display: flex;
+      margin-bottom: 30px;
+      border-radius: 50px;
+      overflow: hidden;
+      box-shadow: 0 0 15px #00c6ff88;
+    }
+
+    .search-form input {
+      flex: 1;
+      padding: 15px 20px;
+      font-size: 1.1rem;
+      border: none;
+      outline: none;
+      background: rgba(255, 255, 255, 0.15);
+      color: #e0e0e0;
+      transition: background 0.3s ease;
+    }
+
+    .search-form input::placeholder {
+      color: #b0cfdc;
+      font-style: italic;
+    }
+
+    .search-form input:focus {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .search-form button {
+      background: #00c6ff;
+      border: none;
+      padding: 0 20px;
+      cursor: pointer;
+      font-size: 1.4rem;
+      color: #003f5c;
+      transition: background 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 50px;
+    }
+    
+    .search-form button:hover {
+      background: #0086b3;
+    }
+    
+    .search-form button:focus {
+      outline: 2px solid #a0e9fd;
+      outline-offset: 2px;
+    }
+
+    /* Weather Result */
+    .weather-result {
+      text-align: left;
+      font-size: 1.1rem;
+      line-height: 1.5;
+      color: #d0e8ff;
+      min-height: 250px;
+      position: relative;
+    }
+
+    .info-text {
+      font-style: italic;
+      color: #7aa7c7;
+    }
+
+    .weather-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    .weather-header img {
+      width: 80px;
+      height: 80px;
+      filter: drop-shadow(0 0 5px #00c6ff);
+    }
+
+    .weather-header h3 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: #a0e9fd;
+      text-shadow: 0 0 8px #00c6ff;
+      margin: 0;
+    }
+
+    .weather-details p {
+      margin: 6px 0;
+    }
+
+    .forecast-grid {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 10px 0;
+    }
+
+    .forecast-day {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 15px;
+      border-radius: 10px;
+      text-align: center;
+      min-width: 120px;
+    }
+
+    .forecast-day img {
+      width: 50px;
+      height: 50px;
+    }
+
+    /* Spinner */
+    .spinner {
+      border: 4px solid rgba(255, 255, 255, 0.2);
+      border-top: 4px solid #00c6ff;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* About Page */
+    .about-content {
+      text-align: left;
+    }
+
+    .about-content h3 {
+      color: #a0e9fd;
+      margin-top: 20px;
+      margin-bottom: 10px;
+    }
+
+    .about-content ul {
+      padding-left: 20px;
+    }
+
+    .about-content li {
+      margin-bottom: 8px;
+    }
+
+    /* Auth Page - Compact and Centered */
+    .auth-container {
+      width: 100%;
+      max-width: 320px;  /* Compact width */
+      margin: 0 auto;    /* Center */
+      padding: 20px 25px; /* Tighter padding */
+      box-shadow: 0 4px 20px rgba(0, 198, 255, 0.3);
+      border: 1px solid rgba(0, 198, 255, 0.2);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .auth-tabs {
+      display: flex;
+      margin-bottom: 15px;  /* Tighter spacing */
+      border-radius: 12px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .auth-tab {
+      flex: 1;
+      padding: 12px 8px;    /* Compact */
+      background: none;
+      border: none;
+      color: #e0e0e0;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.95rem;
+    }
+
+    .auth-tab.active {
+      background: rgba(0, 198, 255, 0.3);
+      color: #a0e9fd;
+    }
+
+    .auth-form {
+      display: none;
+      text-align: left;
+      padding: 0;
+    }
+
+    .auth-form.active {
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 12px;  /* Tighter */
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 4px;
+      color: #a0e9fd;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 10px;        /* Smaller */
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.1);
+      color: #e0e0e0;
+      font-size: 0.95rem;
+    }
+
+    .form-group input:focus, .form-group select:focus {
+      outline: none;
+      border-color: #00c6ff;
+    }
+
+    .auth-submit {
+      width: 100%;
+      padding: 10px;        /* Compact */
+      background: #00c6ff;
+      color: #003f5c;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      margin-top: 8px;
+    }
+
+    .auth-submit:hover {
+      background: #0086b3;
+    }
+
+    .auth-submit:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    /* Premium Page Styles */
+    .upgrade-section {
+      max-width: 400px;
+      margin: 20px auto;
+      padding: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .currency-price {
+      margin: 15px 0;
+    }
+
+    .currency-price label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      color: #a0e9fd;
+    }
+
+    #currency-select {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      color: #e0e0e0;
+    }
+
+    #price-preview {
+      font-size: 1.2em;
+      font-weight: bold;
+      color: #00c6ff;
+      margin: 10px 0;
+    }
+
+    .premium-benefits {
+      max-width: 500px;
+      margin: 20px auto;
+      padding: 20px;
+      text-align: center;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 8px;
+    }
+
+    .premium-badge {
+      background: #28a745;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 1.1em;
+      margin-bottom: 15px;
+      display: inline-block;
+    }
+
+    .premium-benefits ul {
+      list-style: none;
+      padding: 0;
+      text-align: left;
+    }
+
+    .premium-benefits li {
+      margin: 10px 0;
+      padding-left: 20px;
+      position: relative;
+    }
+
+    .premium-benefits li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: #28a745;
+      font-weight: bold;
+    }
+
+    #contact-support {
+      margin-top: 20px;
+      background: rgba(255,255,255,0.2);
+      border: 1px solid white;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    #contact-support:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    /* Profile Specific */
+    #profile-image-preview {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      box-shadow: 0 0 10px #00c6ff;
+      margin-bottom: 10px;
+      display: none;
+    }
+
+    .toggle-section {
+      margin-top: 20px;
+      text-align: left;
+    }
+
+    .toggle-section button {
+      background: none;
+      border: 1px solid #00c6ff;
+      color: #a0e9fd;
+      padding: 8px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      margin-bottom: 15px;
+    }
+
+    .toggle-section button:hover {
+      background: rgba(0, 198, 255, 0.2);
+    }
+
+    /* History List */
+    #history-list {
+      list-style: none;
+      padding: 0;
+      max-height: 300px;
+      overflow-y: auto;
+      text-align: left;
+    }
+
+    #history-list li {
+      padding: 8px 12px;
+      border-bottom: 1px solid rgba(160, 233, 253, 0.3);
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    #history-list li:hover {
+      background: rgba(0, 198, 255, 0.1);
+    }
+
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(5px);
+    }
+
+    .modal-content {
+      background-color: rgba(255, 255, 255, 0.95);
+      margin: 15% auto;
+      padding: 20px;
+      border-radius: 8px;
+      width: 80%;
+      max-width: 400px;
+      text-align: center;
+      color: #003f5c;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-buttons {
+      margin-top: 15px;
+    }
+
+    .modal-buttons button {
+      margin: 0 10px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.3s;
+    }
+
+    .confirm-btn {
+      background: #28a745;
+      color: white;
+    }
+
+    .confirm-btn:hover {
+      background: #218838;
+    }
+
+    .cancel-btn {
+      background: #dc3545;
+      color: white;
+    }
+
+    .cancel-btn:hover {
+      background: #c82333;
+    }
+
+        /* Button Classes (for Premium) */
+    .btn-primary {
+      width: 100%;
+      padding: 12px;
+      background: #00c6ff;
+      color: #003f5c;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      margin-top: 10px;
+    }
+
+    .btn-primary:hover {
+      background: #0086b3;
+    }
+
+    .btn-primary:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 1px solid white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
+      margin-top: 10px;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Loading Spinner in Premium */
+    #premium-loading {
+      text-align: center;
+      padding: 20px;
+      color: #a0e9fd;
+      display: none;  /* Hidden by default */
+    }
+
+    /* Hide/Show Classes */
+    .hidden { display: none !important; }
+    .show { display: block !important; }
+
+    /* Error Messages */
+    .error-message {
+      color: #ff6b6b;
+      margin-bottom: 10px;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    /* Responsive */
+    @media (max-width: 450px) {
+      .app-container {
+        width: 90vw;
+        padding: 20px;
+      }
+
+      .auth-container {
+        width: 90vw;
+        max-width: none;
+        padding: 15px 20px;
+      }
+
+      .nav-container {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .nav-title {
+        font-size: 1.5rem;
+      }
+
+      .modal-content {
+        width: 90%;
+        margin: 20% auto;
+      }
+
+      .forecast-grid {
+        flex-direction: column;
+      }
+
+      .forecast-day {
+        min-width: auto;
+      }
+
+      .auth-tabs {
+        flex-direction: column;
+        border-radius: 8px;
+      }
+
+      .auth-tab {
+        border-radius: 0;
+      }
+
+      .auth-tab:first-child {
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+      }
+
+      .auth-tab:last-child {
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+      }
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <nav class="main-nav">
+    <div class="nav-container">
+      <h1 class="nav-title">Weather Oracle</h1>
+      <div class="nav-links">
+        <a href="#home" class="nav-link active" data-page="home">Home</a>
+        <a href="#about" class="nav-link" data-page="about">About</a>
+        <a href="#auth" class="nav-link" data-page="auth" id="auth-nav-link">Sign In</a>
+        <a href="#profile" class="nav-link" data-page="profile" style="display:none;" id="profile-nav-link">Profile</a>
+        <a href="#premium" class="nav-link" data-page="premium" style="display:none;" id="premium-nav-link">Premium</a>
+        <a href="#history" class="nav-link" data-page="history" style="display:none;" id="history-nav-link">History</a>
+        <a href="#" class="nav-link" id="signout-link" style="display:none;">Sign Out</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page-container">
+    <!-- Home Page -->
+    <div class="page active" id="home-page">
+      <div class="app-container">
+        <h2 class="page-title">Welcome to Weather Oracle</h2>
+        <form id="search-form" class="search-form" autocomplete="off" aria-label="Search weather by location">
+          <input type="text" id="location-input" placeholder="Enter location" required aria-required="true" aria-describedby="search-help" />
+          <button type="submit" aria-label="Search weather" title="Search">🔍</button>
+        </form>
+        <div id="weather-result" class="weather-result" role="region" aria-live="polite" aria-atomic="true">
+          <p class="info-text" id="search-help">Enter a location to get the current weather.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- About Page -->
+    <div class="page" id="about-page">
+    <div class="app-container about-content">
+      <h2 class="page-title">About Weather Oracle</h2>
+      <p>Weather Oracle provides accurate and user-friendly weather forecasts for any location worldwide. Our platform ensures that you stay informed about weather conditions, helping you plan your day effectively.</p>
+
+      <h3>Mission</h3>
+      <p>Our mission is to empower users with timely and precise weather information, combining advanced technology with a simple, intuitive interface.</p>
+
+      <h3>Features</h3>
+      <ul>
+        <li>Real-time weather updates with hourly and daily forecasts</li>
+        <li>3-day extended forecasts for Premium users</li>
+        <li>User profiles for a personalized experience</li>
+        <li>History tracking of previous searches</li>
+        <li>Premium subscription with enhanced features and priority support</li>
+      </ul>
+
+      <h3>Technology</h3>
+      <p>Weather Oracle leverages industry-leading weather APIs and advanced algorithms to deliver accurate predictions. Our system uses dynamic data processing to provide real-time updates and detailed forecasts.</p>
+
+      <h3>User Benefits</h3>
+      <ul>
+        <li>Plan activities with confidence based on accurate forecasts</li>
+        <li>Receive alerts for severe weather conditions</li>
+        <li>Save your favorite locations for quick access</li>
+        <li>Enjoy a clean and intuitive interface without unnecessary clutter</li>
+        <li>Premium users get additional features such as ad-free experience, advanced analytics, and 3-day forecasts</li>
+      </ul>
+
+      <h3>Support & Community</h3>
+      <p>We value our users and provide dedicated support. Whether you have questions, feedback, or need help, our support team is always ready to assist. Join our community to stay updated with weather news and tips.</p>
+    </div>
+  </div>
+  
+    <!-- Auth Page -->
+    <div class="page" id="auth-page">
+      <div class="app-container auth-container">
+        <div class="auth-tabs" role="tablist">
+          <button class="auth-tab active" data-tab="signin" role="tab" aria-selected="true" aria-controls="signin-form" id="signin-tab">Sign In</button>
+          <button class="auth-tab" data-tab="signup" role="tab" aria-selected="false" aria-controls="signup-form" id="signup-tab">Sign Up</button>
+        </div>
+        <form id="signin-form" class="auth-form active" novalidate role="tabpanel" aria-labelledby="signin-tab">
+          <div id="signin-error" class="error-message" role="alert"></div>
+          <div class="form-group">
+            <label for="signin-email">Email</label>
+            <input type="email" id="signin-email" required placeholder="Enter your email" aria-required="true" />
+          </div>
+          <div class="form-group">
+            <label for="signin-password">Password</label>
+            <input type="password" id="signin-password" required placeholder="Enter your password" aria-required="true" />
+          </div>
+          <button type="submit" class="auth-submit">Sign In</button>
+        </form>
+        <form id="signup-form" class="auth-form" novalidate role="tabpanel" aria-labelledby="signup-tab">
+          <div id="signup-error" class="error-message" role="alert"></div>
+          <div class="form-group">
+            <label for="signup-name">Full Name</label>
+            <input type="text" id="signup-name" required placeholder="Enter your full name" aria-required="true" />
+          </div>
+          <div class="form-group">
+            <label for="signup-email">Email</label>
+            <input type="email" id="signup-email" required placeholder="Enter your email" aria-required="true" />
+          </div>
+          <div class="form-group">
+            <label for="signup-password">Password</label>
+            <input type="password" id="signup-password" required placeholder="Create a password (min 6 chars)" aria-required="true" />
+          </div>
+          <div class="form-group">
+            <label for="confirm-password">Confirm Password</label>
+            <input type="password" id="confirm-password" required placeholder="Confirm your password" aria-required="true" />
+          </div>
+          <div class="form-group">
+            <label for="signup-profile-image">Profile Image (optional)</label>
+            <input type="file" id="signup-profile-image" accept="image/*" />
+          </div>
+          <button type="submit" class="auth-submit">Create Account</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Profile Page -->
+    <div class="page" id="profile-page">
+      <div class="app-container">
+        <h2 class="page-title">User  Profile</h2>
+        <div id="profile-error" class="error-message"></div>
+        <img id="profile-image-preview" src="" alt="Profile Image" />
+        <form id="profile-form" novalidate>
+          <div class="form-group">
+            <label for="profile-name">Full Name</label>
+            <input type="text" id="profile-name" required placeholder="Enter your full name" />
+          </div>
+          <div class="form-group">
+            <label for="profile-email">Email</label>
+            <input type="email" id="profile-email" required placeholder="Enter your email" disabled />
+          </div>
+          <div class="form-group">
+            <label for="profile-image">Profile Image</label>
+            <input type="file" id="profile-image" accept="image/*" />
+          </div>
+          <button type="submit" class="btn-primary">Update Profile</button>
+        </form>
+
+        <div class="toggle-section">
+          <button id="toggle-password-btn">Change Password</button>
+          <form id="password-form" class="hidden" novalidate>
+            <div id="password-error" class="error-message"></div>
+            <div class="form-group">
+              <label for="current-password">Current Password</label>
+              <input type="password" id="current-password" required placeholder="Enter current password" />
+            </div>
+            <div class="form-group">
+              <label for="new-password">New Password</label>
+              <input type="password" id="new-password" required placeholder="Enter new password (min 6 chars)" />
+            </div>
+            <div class="form-group">
+              <label for="confirm-new-password">Confirm New Password</label>
+              <input type="password" id="confirm-new-password" required placeholder="Confirm new password" />
+            </div>
+            <button type="submit" class="btn-primary">Update Password</button>
+          </form>
+        </div>
+
+        <div id="premium-status" style="margin-top: 20px;">
+          <p id="premium-text">Premium Status: <span id="premium-badge">Free</span></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Premium Page -->
+    <div class="page" id="premium-page">
+      <div class="app-container">
+        <h2 class="page-title">Upgrade to Premium</h2>
+        <div id="premium-error" class="error-message"></div>
+        <div id="premium-loading">
+          <div class="spinner"></div>
+          <p>Processing...</p>
+        </div>
+
+        <div class="premium-benefits">
+          <div class="premium-badge">Premium Features</div>
+          <ul>
+            <li>3-Day Weather Forecasts</li>
+            <li>Ad-Free Experience</li>
+            <li>Priority Support</li>
+            <li>Advanced Analytics</li>
+            <li>Custom Alerts</li>
+          </ul>
+        </div>
+
+        <div class="upgrade-section">
+          <div class="currency-price">
+            <label for="currency-select">Select Currency</label>
+            <select id="currency-select">
+              <option value="USD">USD - $9.99/month</option>
+              <option value="EUR">EUR - €9.99/month</option>
+              <option value="GBP">GBP - £9.99/month</option>
+              <option value="NGN">NGN - ₦9,999/month</option>
+              <option value="INR">INR - ₹999/month</option>
+              <option value="JPY">JPY - ¥1,499/month</option>
+            </select>
+          </div>
+          <div id="price-preview">Monthly: $9.99 USD</div>
+          <button id="upgrade-btn" class="btn-primary">Upgrade to Premium</button>
+          <button id="contact-support" class="btn-secondary">Contact Support</button>
+        </div>
+      </div>
+
+      <!-- Payment Modal -->
+      <div id="payment-modal" class="modal">
+        <div class="modal-content">
+          <h3>Confirm Premium Upgrade</h3>
+          <p id="modal-price"></p>
+          <div class="modal-buttons">
+            <button id="confirm-upgrade" class="confirm-btn">Confirm Payment</button>
+            <button id="cancel-upgrade" class="cancel-btn">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- History Page -->
+    <div class="page" id="history-page">
+      <div class="app-container">
+        <h2 class="page-title">Search History</h2>
+        <div id="history-error" class="error-message"></div>
+        <ul id="history-list"></ul>
+        <button id="clear-history-btn" class="btn-secondary">Clear History</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const backendUrl = 'http://localhost:3000';  // Update for deployment
+
+    // Elements
+    const navLinks = document.querySelectorAll('.nav-link[data-page]');
+    const pages = document.querySelectorAll('.page');
+    const authNavLink = document.getElementById('auth-nav-link');
+    const signoutLink = document.getElementById('signout-link');
+    const profileNavLink = document.getElementById('profile-nav-link');
+    const historyNavLink = document.getElementById('history-nav-link');
+    const premiumNavLink = document.getElementById('premium-nav-link');
+    const authTabs = document.querySelectorAll('.auth-tab');
+    const authForms = document.querySelectorAll('.auth-form');
+    const signinForm = document.getElementById('signin-form');
+    const signupForm = document.getElementById('signup-form');
+    const signinError = document.getElementById('signin-error');
+    const signupError = document.getElementById('signup-error');
+    const signupProfileImageInput = document.getElementById('signup-profile-image');
+    const searchForm = document.getElementById('search-form');
+    const locationInput = document.getElementById('location-input');
+    const weatherResult = document.getElementById('weather-result');
+    const profileForm = document.getElementById('profile-form');
+    const profileError = document.getElementById('profile-error');
+    const profileImagePreview = document.getElementById('profile-image-preview');
+    const profileImageInput = document.getElementById('profile-image');
+    const passwordForm = document.getElementById('password-form');
+    const passwordError = document.getElementById('password-error');
+    const togglePasswordBtn = document.getElementById('toggle-password-btn');
+    const premiumStatus = document.getElementById('premium-status');
+    const premiumBadge = document.getElementById('premium-badge');
+    const premiumError = document.getElementById('premium-error');
+    const premiumLoading = document.getElementById('premium-loading');
+    const currencySelect = document.getElementById('currency-select');
+    const pricePreview = document.getElementById('price-preview');
+    const upgradeBtn = document.getElementById('upgrade-btn');
+    const contactSupportBtn = document.getElementById('contact-support');
+    const paymentModal = document.getElementById('payment-modal');
+    const modalPrice = document.getElementById('modal-price');
+    const confirmUpgradeBtn = document.getElementById('confirm-upgrade');
+    const cancelUpgradeBtn = document.getElementById('cancel-upgrade');
+    const historyList = document.getElementById('history-list');
+    const historyError = document.getElementById('history-error');
+    const clearHistoryBtn = document.getElementById('clear-history-btn');
+
+    let authToken = localStorage.getItem('authToken');
+    let currentUser  = JSON.parse(localStorage.getItem('userProfile')) || {};
+    let selectedCurrency = localStorage.getItem('selectedCurrency') || 'USD';
+    let isPremium = currentUser .isPremium || false;
+
+    // Currency rates (static fallback; backend handles dynamic)
+    const currencyRates = {
+      USD: 1,
+      EUR: 0.92,
+      GBP: 0.79,
+      NGN: 1600,
+      INR: 83,
+      JPY: 150
+    };
+
+    const basePrice = 9.99;  // USD
+
+    // Helper: Show page
+    function showPage(pageId) {
+      pages.forEach(page => page.classList.toggle('active', page.id === `${pageId}-page`));
+      navLinks.forEach(link => link.classList.toggle('active', link.getAttribute('data-page') === pageId));
+      window.location.hash = `#${pageId}`;
+    }
+
+    // Helper: Update nav for auth state
+    function updateNavForAuth(isLoggedIn) {
+      authNavLink.style.display = isLoggedIn ? 'none' : 'inline-block';
+      signoutLink.style.display = isLoggedIn ? 'inline-block' : 'none';
+      profileNavLink.style.display = isLoggedIn ? 'inline-block' : 'none';
+      historyNavLink.style.display = isLoggedIn ? 'inline-block' : 'none';
+      premiumNavLink.style.display = isLoggedIn ? 'inline-block' : 'none';
+    }
+
+    // Helper: SaveUser Profile
+    function saveUserProfile(profile) {
+      localStorage.setItem('userProfile', JSON.stringify(profile));
+      currentUser  = profile;
+      isPremium = profile.isPremium || false;
+      updatePremiumUI();
+    }
+
+    // Helper: Update premium UI
+    function updatePremiumUI() {
+      if (premiumBadge) {
+        premiumBadge.textContent = isPremium ? 'Premium' : 'Free';
+        premiumBadge.style.background = isPremium ? '#28a745' : '#6c757d';
+      }
+      if (premiumStatus) {
+        premiumStatus.innerHTML = `Premium Status: <span id="premium-badge" class="premium-badge">${isPremium ? 'Premium' : 'Free'}</span>`;
+      }
+    }
+
+    // Initial setup
+    updateNavForAuth(!!authToken);
+    updatePremiumUI();
+    currencySelect.value = selectedCurrency;
+    updatePricePreview();
+
+        // Navigation
+    navLinks.forEach(link => {
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        const pageId = link.getAttribute('data-page');
+        showPage(pageId);
+
+        // Load data for specific pages if logged in
+        if (authToken && ['profile', 'history', 'premium'].includes(pageId)) {
+          if (pageId === 'profile') loadProfile();
+          if (pageId === 'history') loadHistory();
+          if (pageId === 'premium') updatePremiumUI();
+        }
+      });
+    });
+
+    // Sign out
+    if (signoutLink) {
+      signoutLink.addEventListener('click', e => {
+        e.preventDefault();
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userProfile');
+        localStorage.removeItem('selectedCurrency');
+        authToken = null;
+        currentUser  = {};
+        isPremium = false;
+        updateNavForAuth(false);
+        updatePremiumUI();
+        alert('Signed out successfully.');
+        showPage('home');
+      });
+    }
+
+    // Auth tabs toggle
+    authTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const tabId = tab.getAttribute('data-tab');
+        authTabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        authForms.forEach(form => form.classList.toggle('active', form.id === `${tabId}-form`));
+        if (signinError) signinError.style.display = 'none';
+        if (signupError) signupError.style.display = 'none';
+      });
+    });
+
+    // Helper: API fetch with auth and single JSON parse
+    async function apiFetch(endpoint, options = {}) {
+      const config = {
+        headers: { ...options.headers },
+        ...options
+      };
+      if (authToken && !config.headers['Authorization']) {
+        config.headers['Authorization'] = `Bearer ${authToken}`;
+      }
+      if (!config.headers['Content-Type'] && options.body && !(options.body instanceof FormData)) {
+        config.headers['Content-Type'] = 'application/json';
+      }
+
+      try {
+        const res = await fetch(`${backendUrl}${endpoint}`, config);
+        let data;
+        try {
+          data = await res.json();
+        } catch {
+          if (!res.ok) throw new Error('Invalid response from server');
+          return null;  // Non-JSON response (e.g., redirect)
+        }
+
+        if (!res.ok) {
+          throw new Error(data.message || `HTTP ${res.status}`);
+        }
+        return data;
+      } catch (err) {
+        console.error(`API error at ${endpoint}:`, err);
+        throw err;
+      }
+    }
+
+    // Signin form submit
+    if (signinForm) {
+      signinForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (signinError) signinError.style.display = 'none';
+
+        const emailEl = document.getElementById('signin-email');
+        const passwordEl = document.getElementById('signin-password');
+
+        if (!emailEl || !passwordEl) return;
+
+        const email = emailEl.value.trim().toLowerCase();
+        const password = passwordEl.value;
+
+        if (!email || !password) {
+          if (signinError) {
+            signinError.textContent = 'Please fill in all fields.';
+            signinError.style.display = 'block';
+          }
+          return;
+        }
+
+        try {
+          const data = await apiFetch('/api/signin', {
+            method: 'POST',
+            body: JSON.stringify({ email, password }),
+          });
+
+          authToken = data.token;
+          localStorage.setItem('authToken', authToken);
+
+          saveUserProfile({
+            name: data.user.name,
+            email: data.user.email,
+            imageUrl: data.user.imageUrl || '',
+            isPremium: data.user.isPremium || false,
+          });
+
+          updateNavForAuth(true);
+          alert('Signed in successfully!');
+          signinForm.reset();
+          if (signinError) signinError.style.display = 'none';
+          showPage('home');
+        } catch (err) {
+          if (signinError) {
+            signinError.textContent = err.message || 'Error connecting to server.';
+            signinError.style.display = 'block';
+          }
+          console.error('Signin error:', err);
+        }
+      });
+    }
+
+    // Signup form submit
+    if (signupForm) {
+      signupForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (signupError) signupError.style.display = 'none';
+
+        const nameEl = document.getElementById('signup-name');
+        const emailEl = document.getElementById('signup-email');
+        const passwordEl = document.getElementById('signup-password');
+        const confirmEl = document.getElementById('confirm-password');
+
+        if (!nameEl || !emailEl || !passwordEl || !confirmEl) {
+          if (signupError) {
+            signupError.textContent = 'Form error – refresh page.';
+            signupError.style.display = 'block';
+          }
+          return;
+        }
+
+        const name = nameEl.value.trim();
+        const email = emailEl.value.trim().toLowerCase();
+        const password = passwordEl.value;
+        const confirmPassword = confirmEl.value;
+
+        if (!name) {
+          if (signupError) {
+            signupError.textContent = 'Full name is required.';
+            signupError.style.display = 'block';
+            nameEl.focus();
+          }
+          return;
+        }
+        if (!email || !email.includes('@')) {
+          if (signupError) {
+            signupError.textContent = 'Valid email is required.';
+            signupError.style.display = 'block';
+            emailEl.focus();
+          }
+          return;
+        }
+        if (!password) {
+          if (signupError) {
+            signupError.textContent = 'Password is required.';
+            signupError.style.display = 'block';
+            passwordEl.focus();
+          }
+          return;
+        }
+        if (password.length < 6) {
+          if (signupError) {
+            signupError.textContent = 'Password must be at least 6 characters.';
+            signupError.style.display = 'block';
+            passwordEl.focus();
+          }
+          return;
+        }
+        if (!confirmPassword) {
+          if (signupError) {
+            signupError.textContent = 'Please confirm your password.';
+            signupError.style.display = 'block';
+            confirmEl.focus();
+          }
+          return;
+        }
+        if (password !== confirmPassword) {
+          if (signupError) {
+            signupError.textContent = 'Passwords do not match.';
+            signupError.style.display = 'block';
+            confirmEl.focus();
+          }
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append('name', name);
+        formData.append('email', email);
+        formData.append('password', password);
+
+        if (signupProfileImageInput && signupProfileImageInput.files.length > 0) {
+          formData.append('profileImage', signupProfileImageInput.files[0]);
+        }
+
+        try {
+          const data = await apiFetch('/api/signup', {
+            method: 'POST',
+            body: formData
+          });
+
+          authToken = data.token;
+          localStorage.setItem('authToken', authToken);
+
+          saveUserProfile({
+            name: data.user.name,
+            email: data.user.email,
+            imageUrl: data.user.imageUrl || '',
+            isPremium: data.user.isPremium || false,
+          });
+
+          updateNavForAuth(true);
+          alert('Account created and signed in successfully!');
+          signupForm.reset();
+          if (signupError) signupError.style.display = 'none';
+          showPage('home');
+        } catch (err) {
+          if (signupError) {
+            signupError.textContent = err.message || 'Error connecting to server.';
+            signupError.style.display = 'block';
+          }
+          console.error('Signup error:', err);
+        }
+      });
+    }
+
+    // Signup image preview (optional)
+    if (signupProfileImageInput) {
+      signupProfileImageInput.addEventListener('change', () => {
+        if (signupProfileImageInput.files.length > 0) {
+          console.log('Image selected for signup:', signupProfileImageInput.files[0].name);
+        }
+      });
+    }
+
+    // Weather search
+    if (searchForm) {
+      searchForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const location = locationInput.value.trim();
+        if (!location) return;
+
+        weatherResult.innerHTML = '<div class="spinner"></div>';
+
+        try {
+          const data = await apiFetch(`/api/weather?location=${encodeURIComponent(location)}`);
+
+          weatherResult.innerHTML = `
+            <div class="weather-header">
+              <img src="http://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png" alt="${data.weather[0].description}" />
+              <h3>${data.name}, ${data.sys.country}</h3>
+            </div>
+            <div class="weather-details">
+              <p><strong>Temperature:</strong> ${Math.round(data.main.temp)}°C (feels like ${Math.round(data.main.feels_like)}°C)</p>
+              <p><strong>Conditions:</strong> ${data.weather[0].description}</p>
+              <p><strong>Humidity:</strong> ${data.main.humidity}%</p>
+              <p><strong>Wind:</strong> ${data.wind.speed} m/s</p>
+              ${isPremium ? '' : '<p style="color: #ff6b6b; font-style: italic;">Upgrade to Premium for 3-day forecast!</p>'}
+            </div>
+          `;
+
+          if (isPremium && data.forecast) {
+            const forecastHtml = data.forecast.list.slice(0, 3).map(day => `
+              <div class="forecast-day">
+                <p>${new Date(day.dt * 1000).toLocaleDateString('en-US', { weekday: 'short' })}</p>
+                <img src="http://openweathermap.org/img/wn/${day.weather[0].icon}.png" alt="${day.weather[0].description}" />
+                <p>${Math.round(day.main.temp)}°C</p>
+                <p>${day.weather[0].description}</p>
+              </div>
+            `).join('');
+            weatherResult.innerHTML += `<div class="forecast-grid">${forecastHtml}</div>`;
+          }
+
+          // Add to history if logged in
+          if (authToken) {
+            try {
+              await apiFetch('/api/history', {
+                method: 'POST',
+                body: JSON.stringify({ location })
+              });
+              if (historyNavLink && historyNavLink.classList.contains('active')) {
+                loadHistory();
+              }
+            } catch (err) {
+              console.error('History add error:', err);
+            }
+          }
+
+          locationInput.value = '';
+        } catch (err) {
+          weatherResult.innerHTML = `<p class="info-text" style="color: #ff6b6b;">Error: ${err.message}</p>`;
+          console.error('Weather error:', err);
+        }
+      });
+    }
+
+    // Profile load
+    async function loadProfile() {
+      if (!authToken) return;
+      try {
+        const data = await apiFetch('/api/profile');
+        document.getElementById('profile-name').value = data.name;
+        document.getElementById('profile-email').value = data.email;
+        if (data.imageUrl) {
+          profileImagePreview.src = `${backendUrl}${data.imageUrl}`;
+          profileImagePreview.style.display = 'block';
+        }
+        saveUserProfile(data);
+      } catch (err) {
+        if (profileError) {
+          profileError.textContent = err.message;
+          profileError.style.display = 'block';
+        }
+      }
+    }
+
+    // Profile update
+    if (profileForm) {
+      profileForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('profile-name').value.trim();
+        if (!name) return;
+
+        const formData = new FormData();
+        formData.append('name', name);
+
+        if (profileImageInput && profileImageInput.files.length > 0) {
+          formData.append('profileImage', profileImageInput.files[0]);
+        }
+
+        try {
+          const data = await apiFetch('/api/profile', {
+            method: 'PUT',
+            body: formData
+          });
+
+          saveUserProfile(data);
+          alert('Profile updated successfully!');
+          profileForm.reset();
+          if (profileImageInput) profileImageInput.value = '';
+          profileImagePreview.style.display = 'none';
+        } catch (err) {
+          if (profileError) {
+            profileError.textContent = err.message;
+            profileError.style.display = 'block';
+          }
+        }
+      });
+    }
+
+    // Profile image preview
+    if (profileImageInput) {
+      profileImageInput.addEventListener('change', () => {
+        if (profileImageInput.files.length > 0) {
+          const url = URL.createObjectURL(profileImageInput.files[0]);
+          profileImagePreview.src = url;
+          profileImagePreview.style.display = 'block';
+        }
+      });
+    }
+
+    // Password toggle
+    if (togglePasswordBtn) {
+      togglePasswordBtn.addEventListener('click', () => {
+        passwordForm.classList.toggle('hidden');
+      });
+    }
+
+    // Password change
+    if (passwordForm) {
+      passwordForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const current = document.getElementById('current-password').value;
+        const newPass = document.getElementById('new-password').value;
+        const confirm = document.getElementById('confirm-new-password').value;
+
+        if (newPass.length < 6 || newPass !== confirm) {
+          if (passwordError) {
+            passwordError.textContent = 'New password must be 6+ chars and match confirmation.';
+            passwordError.style.display = 'block';
+          }
+          return;
+        }
+
+                try {
+          const data = await apiFetch('/api/change-password', {
+            method: 'POST',
+            body: JSON.stringify({ current, newPassword: newPass }),
+          });
+
+          alert('Password updated successfully!');
+          passwordForm.reset();
+          passwordForm.classList.add('hidden');
+          if (passwordError) passwordError.style.display = 'none';
+        } catch (err) {
+          if (passwordError) {
+            passwordError.textContent = err.message;
+            passwordError.style.display = 'block';
+          }
+        }
+      });
+    }
+
+    // Premium currency select
+    if (currencySelect) {
+      currencySelect.addEventListener('change', () => {
+        selectedCurrency = currencySelect.value;
+        localStorage.setItem('selectedCurrency', selectedCurrency);
+        updatePricePreview();
+      });
+    }
+
+    function updatePricePreview() {
+      const rate = currencyRates[selectedCurrency];
+      const price = (basePrice * rate).toFixed(2);
+      const symbol = { USD: '$', EUR: '€', GBP: '£', NGN: '₦', INR: '₹', JPY: '¥' }[selectedCurrency] || '$';
+      pricePreview.textContent = `Monthly: ${symbol}${price} ${selectedCurrency}`;
+    }
+
+    // Upgrade button
+    if (upgradeBtn) {
+      upgradeBtn.addEventListener('click', () => {
+        if (isPremium) {
+          if (premiumError) {
+            premiumError.textContent = 'You are already a Premium user!';
+            premiumError.style.display = 'block';
+          }
+          return;
+        }
+        const rate = currencyRates[selectedCurrency];
+        const price = basePrice * rate;
+        const symbol = { USD: '$', EUR: '€', GBP: '£', NGN: '₦', INR: '₹', JPY: '¥' }[selectedCurrency] || '$';
+        modalPrice.textContent = `Confirm upgrade for ${symbol}${price.toFixed(2)} ${selectedCurrency}/month?`;
+        paymentModal.style.display = 'block';
+      });
+    }
+
+    // Modal handlers
+    if (confirmUpgradeBtn) {
+      confirmUpgradeBtn.addEventListener('click', async () => {
+        premiumLoading.style.display = 'block';
+        upgradeBtn.disabled = true;
+
+        try {
+          const data = await apiFetch('/api/premium/upgrade', {
+            method: 'POST',
+            body: JSON.stringify({ currency: selectedCurrency }),
+          });
+
+          window.location.href = data.session.url;
+        } catch (err) {
+          premiumLoading.style.display = 'none';
+          upgradeBtn.disabled = false;
+          if (premiumError) {
+            premiumError.textContent = err.message;
+            premiumError.style.display = 'block';
+          }
+        }
+      });
+    }
+
+    if (cancelUpgradeBtn) {
+      cancelUpgradeBtn.addEventListener('click', () => {
+        paymentModal.style.display = 'none';
+        premiumLoading.style.display = 'none';
+        upgradeBtn.disabled = false;
+      });
+    }
+
+    // Close modal on outside click
+    if (paymentModal) {
+      window.addEventListener('click', (e) => {
+        if (e.target === paymentModal) {
+          paymentModal.style.display = 'none';
+        }
+      });
+    }
+
+    // Contact support
+    if (contactSupportBtn) {
+      contactSupportBtn.addEventListener('click', () => {
+        const email = currentUser  .email || 'user@example.com';
+        const subject = 'Premium Support Inquiry';
+        const body = 'Hello, I need help with...';
+        window.location.href = `mailto:support@weatheroracle.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      });
+    }
+
+    // History load
+    async function loadHistory() {
+      if (!authToken) return;
+      try {
+        const data = await apiFetch('/api/history');
+        historyList.innerHTML = data.map(item => `<li>${item.location} - ${new Date(item.date).toLocaleDateString()}</li>`).join('');
+      } catch (err) {
+        if (historyError) {
+          historyError.textContent = err.message;
+          historyError.style.display = 'block';
+        }
+      }
+    }
+
+    // Clear history - FIXED: Single JSON parse
+    if (clearHistoryBtn) {
+      clearHistoryBtn.addEventListener('click', async () => {
+        if (!authToken) return;
+        try {
+          await apiFetch('/api/history', { method: 'DELETE' });
+          loadHistory();
+          alert('History cleared!');
+        } catch (err) {
+          if (historyError) {
+            historyError.textContent = err.message;
+            historyError.style.display = 'block';
+          }
+        }
+      });
+    }
+
+    // Stripe success handler (after redirect)
+    if (window.location.search.includes('success=true')) {
+      // Refresh profile to update premium status
+      if (authToken) {
+        loadProfile();
+        alert('Premium upgrade successful! Welcome to Premium features.');
+      }
+
+            // Clear URL params
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    // Initial page load based on hash
+    if (window.location.hash) {
+      const pageId = window.location.hash.substring(1);
+      if (['home', 'about', 'auth', 'profile', 'history', 'premium'].includes(pageId)) {
+        showPage(pageId);
+        // Load data for specific pages if logged in
+        if (authToken && ['profile', 'history', 'premium'].includes(pageId)) {
+          if (pageId === 'profile') loadProfile();
+          if (pageId === 'history') loadHistory();
+          if (pageId === 'premium') updatePremiumUI();
+        }
+      }
+    }
+
+    // Load profile/history if already on those pages and logged in
+    if (authToken) {
+      const currentPage = window.location.hash.substring(1) || 'home';
+      if (currentPage === 'profile') loadProfile();
+      if (currentPage === 'history') loadHistory();
+    }
+
+    // History list click to search
+    if (historyList) {
+      historyList.addEventListener('click', (e) => {
+        if (e.target.tagName === 'LI') {
+          const location = e.target.textContent.split(' - ')[0];
+          locationInput.value = location;
+          showPage('home');
+          // Trigger search
+          searchForm.dispatchEvent(new Event('submit'));
+        }
+      });
+    }
+
+    console.log('Weather Oracle Frontend Loaded Successfully!');
+  });
+</script>
+</body>
+</html>
