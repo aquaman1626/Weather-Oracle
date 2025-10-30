@@ -3,11 +3,11 @@
   "name": "weather-oracle",
   "version": "1.0.0",
   "description": "Full-stack Weather Oracle app",
-  "main": "backend/server.js",
+  "main": "src/server.js",
   "scripts": {
-    "start": "npm start --prefix backend",
+    "start": "npm start --prefix src",
     "build": "npm run build --prefix frontend",
-    "dev": "concurrently \"npm run dev --prefix backend\" \"npm start --prefix frontend\""
+    "dev": "concurrently \"npm run dev --prefix src\" \"npm start --prefix frontend\""
   },
   "devDependencies": {
     "concurrently": "^9.2.1"
