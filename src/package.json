@@ -1,6 +1,7 @@
 {
-  "name": "backend",
+  "name": "weather-oracle-backend",
   "version": "1.0.0",
+  "description": "Backend API for Weather Oracle App",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -18,13 +19,10 @@
     "nodemailer": "^7.0.6",
     "stripe": "^19.1.0"
   },
-  "description": "",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/aquaman1626/Weather-Oracle.git"
+    "url": "https://github.com/aquaman1626/Weather-Oracle.git"
   },
-  "keywords": [],
-  "author": "",
   "license": "ISC",
   "type": "commonjs",
   "bugs": {
